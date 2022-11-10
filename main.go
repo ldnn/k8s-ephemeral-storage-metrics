@@ -106,7 +106,11 @@ func getMetrics() {
 		for _, element := range raw["pods"].([]interface{}) {
 
 			podName := element.(map[string]interface{})["podRef"].(map[string]interface{})["name"].(string)
-			usedBytes := element.(map[string]interface{})["ephemeral-storage"].(map[string]interface{})["usedBytes"].(float64)
+			
+			usedBytes,ok := element.(map[string]interface{})["ephemeral-storage"].(map[string]interface{})["usedBytes"].(float64)
+                        if !ok{
+                                continue
+                        }
 
 			opsQueued.With(prometheus.Labels{"pod_name": podName, "node_name": nodeName}).Set(usedBytes)
 

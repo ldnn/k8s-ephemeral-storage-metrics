@@ -81,6 +81,8 @@ func getMetrics() {
 		Help: "Used to expose Ephemeral Storage metrics for pod ",
 	},
 		[]string{
+			// pod in the namespace
+                        "pod_namespace",
 			// name of pod for Ephemeral Storage
 			"pod_name",
 			// Name of Node where pod is placed.
@@ -106,13 +108,13 @@ func getMetrics() {
 		for _, element := range raw["pods"].([]interface{}) {
 
 			podName := element.(map[string]interface{})["podRef"].(map[string]interface{})["name"].(string)
-			
+			nameSpace := element.(map[string]interface{})["podRef"].(map[string]interface{})["namespace"].(string)
 			usedBytes,ok := element.(map[string]interface{})["ephemeral-storage"].(map[string]interface{})["usedBytes"].(float64)
                         if !ok{
                                 continue
                         }
 
-			opsQueued.With(prometheus.Labels{"pod_name": podName, "node_name": nodeName}).Set(usedBytes)
+			opsQueued.With(prometheus.Labels{"pod_namespace": nameSpace, "pod_name": podName, "node_name": nodeName}).Set(usedBytes)
 
 			log.Debug().Msg(fmt.Sprintf("pod %s on %s with usedBytes: %s", podName, nodeName, usedBytes))
 		}
